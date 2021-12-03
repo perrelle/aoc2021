@@ -10,7 +10,7 @@ fn input(mut f : impl FnMut(&[&str]) -> ()) {
     })
 }
 
-fn main() {
+fn main() { 
     let mut x = 0;
     let mut z = 0;
     let mut aim = 0;
