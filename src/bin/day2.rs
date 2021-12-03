@@ -1,34 +1,33 @@
-use std::io;
+use std::io::{self, prelude::*};
+
+fn input(mut f : impl FnMut(&[&str]) -> ()) {
+    let stdin = io::stdin();
+    let lines = stdin.lock().lines();
+    lines.for_each(|s| {
+        let str = s.unwrap();
+        let words: Vec<&str> = str.split_whitespace().collect();
+        f(words.as_slice());
+    })
+}
 
 fn main() {
-    let stdin = io::stdin();
-    let mut buf = String::new();
     let mut x = 0;
     let mut z = 0;
     let mut aim = 0;
 
-    while {
-        buf.clear();
-        stdin.read_line(&mut buf).expect("cannot read line") != 0
-    } {
-        let words: Vec<_> = buf.trim().split_whitespace().collect();
-
-        let (direction, value) =
-            match words.as_slice() {
-                [direction,value] =>
-                    (*direction, value.parse::<i32>().expect("failed to parse input")),
+    input(|words : &[&str]| {
+        let (direction, value) : (&str,i32) =
+            match words {
+                [direction,value] => (direction, value.parse().unwrap()),
                 _ => panic!("incorrect input")
             };
         match direction {
-            "forward" => {
-                x += value;
-                z += aim * value;
-            }
+            "forward" => { x += value; z += aim * value; }
             "down" => { aim += value; }
             "up" => { aim -= value; }
             _ => { panic!("incorrect command"); }
         }
-    }
+    });
     
     println!("{}", x * z);
 }
