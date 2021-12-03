@@ -10,7 +10,7 @@ fn input(mut f : impl FnMut(&[&str]) -> ()) {
     })
 }
 
-fn convert_rate(v : Vec<u32>) -> u32 {
+fn convert_rate(v : &Vec<u32>) -> u32 {
     v.iter().fold(0, |rate, &x| { 2 * rate + x })
 }
 
@@ -42,8 +42,8 @@ fn main() {
                 .into_iter()
                 .map(|x| if x > n - x { (1,0) } else { (0,1) })
                 .unzip();
-        let gamma = convert_rate(g);
-        let epsilon = convert_rate(e);
+        let gamma = convert_rate(&g);
+        let epsilon = convert_rate(&e);
         println!("gamma: {} epsilon: {}, consumption: {}", gamma, epsilon, gamma * epsilon);   
     }
 }
