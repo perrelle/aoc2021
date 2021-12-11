@@ -78,8 +78,8 @@ fn part2(input : &Input) -> u32 {
         }
     }
 
-    sizes.sort();
-    let product = sizes.drain((sizes.len()-3)..).fold(1, |acc,n| acc * n);
+    sizes.sort_unstable();
+    let product = sizes.drain((sizes.len()-3)..).product();
     println!("Product of 3 biggest sizes: {}", product);
     product
 }

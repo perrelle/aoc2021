@@ -32,7 +32,7 @@ pub fn print_grid(grid : &Grid) {
         for element in row_iter {
             print!("{}",element);
         }
-        println!("");
+        println!();
     }
 }
 
@@ -82,7 +82,7 @@ fn count_overlaps(grid : &Grid) -> u32 {
     count
 }
 
-pub fn solve_part(part : i32, lines : &Vec<Line>) -> u32 {
+pub fn solve_part(part : i32, lines : &[Line]) -> u32 {
     use std::cmp::max;
 
     let max_coord = |l : &&Line| max(max(max(l.x1, l.y1), l.x2), l.y2);
@@ -90,7 +90,7 @@ pub fn solve_part(part : i32, lines : &Vec<Line>) -> u32 {
     let mut grid = Grid::filled_with(0, size, size);
 
     for line in lines {
-        draw_line(&mut grid, &line, part == 2);
+        draw_line(&mut grid, line, part == 2);
     }
 
     if size < 40 {

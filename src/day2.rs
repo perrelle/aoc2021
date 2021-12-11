@@ -21,7 +21,7 @@ mod parser  {
     }
 }
 
-fn part1(commands: &Vec<Order>) -> i32 { 
+fn part1(commands: &[Order]) -> i32 { 
     let mut x = 0;
     let mut z = 0;
 
@@ -37,7 +37,7 @@ fn part1(commands: &Vec<Order>) -> i32 {
     x * z
 }
 
-fn part2(commands: &Vec<Order>) -> i32 { 
+fn part2(commands: &[Order]) -> i32 { 
     let mut x = 0;
     let mut z = 0;
     let mut aim = 0;

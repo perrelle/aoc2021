@@ -12,7 +12,7 @@ mod parser {
 
 pub fn naive_solve(input : &[u8], iterations : u32) -> u32 {
     let (_,starting_timers) = parser::parse(input).unwrap();
-    let mut timers = starting_timers.clone();
+    let mut timers = starting_timers;
 
     println!("Initial state: {:?}", timers);
 
@@ -30,9 +30,7 @@ pub fn naive_solve(input : &[u8], iterations : u32) -> u32 {
             }
         }
 
-        for _ in 0..born {
-            new_timers.push(8);
-        }
+        new_timers.extend(vec![8; born]);
 
         timers = new_timers;
         println!("After {} days: ({}) {:?}", i, timers.len(), timers);
@@ -41,7 +39,7 @@ pub fn naive_solve(input : &[u8], iterations : u32) -> u32 {
     timers.len() as u32
 }
 
-fn simulate(starting_timers : &Vec<u32>, iterations : u32) -> u64 {
+fn simulate(starting_timers : &[u32], iterations : u32) -> u64 {
     let mut timers = [0u64 ; 9];
 
     for &t in starting_timers {

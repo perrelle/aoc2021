@@ -1,5 +1,3 @@
-pub type Grid = [[u32 ; 5] ; 5];
-
 mod parser  {
     use nom::{IResult, multi::*, character::complete::*, combinator::*};
 
@@ -16,11 +14,11 @@ mod parser  {
 }
 
 
-fn convert_rate(v : &Vec<u32>) -> u32 {
+fn convert_rate(v : &[u32]) -> u32 {
     v.iter().fold(0, |rate, &x| { 2 * rate + x })
 }
 
-fn compute_power_rate(data : &Vec<Vec<u32>>) -> u32 {
+fn compute_power_rate(data : &[Vec<u32>]) -> u32 {
     let mut counts : Option<Vec<u32>> = None;
 
     for number in data {
@@ -36,7 +34,7 @@ fn compute_power_rate(data : &Vec<Vec<u32>>) -> u32 {
 
     let n = data.len() as u32;
     if let Some(counts) = counts {
-        let (g,e) =
+        let (g,e) : (Vec<u32>,Vec<u32>) =
             counts
                 .into_iter()
                 .map(|x| if x > n - x { (1,0) } else { (0,1) })
@@ -52,7 +50,7 @@ fn compute_power_rate(data : &Vec<Vec<u32>>) -> u32 {
     }
 }
 
-fn compute_rate(majority: bool, data : &Vec<Vec<u32>>) -> &Vec<u32> {
+fn compute_rate(majority: bool, data : &[Vec<u32>]) -> &Vec<u32> {
     let mut set : Vec<&Vec<u32>> = data.iter().collect();
     let mut index = 0;
 
@@ -67,9 +65,9 @@ fn compute_rate(majority: bool, data : &Vec<Vec<u32>>) -> &Vec<u32> {
     set[0]
 }
 
-fn compute_ls_rate(data : &Vec<Vec<u32>>) -> u32 {
-    let oxygen = convert_rate(&compute_rate(true, &data));
-    let dhmo = convert_rate(&compute_rate(false, &data));
+fn compute_ls_rate(data : &[Vec<u32>]) -> u32 {
+    let oxygen = convert_rate(compute_rate(true, data));
+    let dhmo = convert_rate(compute_rate(false, data));
     let life_support = oxygen * dhmo;
     println!("Ogygen: {}, CO²: {}, Life support rating: {}", oxygen, dhmo, life_support);
     life_support

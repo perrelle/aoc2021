@@ -44,7 +44,7 @@ fn char_completion_score(c : char) -> u32 {
     }
 }
 
-fn completion_score(v : &Vec<char>) -> u64 {
+fn completion_score(v : &[char]) -> u64 {
     let mut score = 0;
     for &c in v {
         score = 5 * score + (char_completion_score(c) as u64);
@@ -86,7 +86,7 @@ pub fn solve(data: &[u8]) -> (u32,u64) {
 
         // --- Part 2 ---
         if correct && !stack.is_empty() {
-            let completion =
+            let completion : Vec<char> =
                 stack.iter().rev().map(matching_delimiter).collect();
             let completion_score = completion_score(&completion);
             completion_scores.push(completion_score);
@@ -97,7 +97,7 @@ pub fn solve(data: &[u8]) -> (u32,u64) {
         }
     }
 
-    completion_scores.sort();
+    completion_scores.sort_unstable();
     let completion_score = completion_scores[completion_scores.len() / 2];
 
     println!("Total syntax error score: {}", syntax_score);

@@ -30,7 +30,7 @@ mod parser  {
     }
 }
 
-fn part1(input : &Vec<Entry>) -> i32 {
+fn part1(input : &[Entry]) -> i32 {
     // Part 1
     let mut count = 0;
     for (_signals,outputs) in input {
@@ -61,7 +61,7 @@ impl<K,V> VariableMap<K,V> where
     }
 
     fn def(&mut self, x : K, y : V) {
-        if let Some(_) = self.values.insert(x.clone(), y) {
+        if self.values.insert(x.clone(), y).is_some() {
             panic!("Found several candidates for {} {} in entry", self.name, x);
         }
     }
@@ -91,11 +91,11 @@ impl<K> Singleton<K> for HashSet<K> where
     fn to_singleton(&self) -> Option<&K> {
         let mut iter = self.iter();
         let r = iter.next()?;
-        if let None = iter.next() { Some(r) } else { None }
+        if iter.next().is_none() { Some(r) } else { None }
     }
 }
 
-fn solve_entry(signals : &Vec<Word>, outputs : &Vec<Word>) -> i32 {
+fn solve_entry(signals : &[Word], outputs : &[Word]) -> i32 {
     let mut digits : VariableMap<i32, &Word> = VariableMap::new("digit");
     let mut segments : VariableMap<char, char> = VariableMap::new("segment");
 
@@ -183,7 +183,7 @@ fn solve_entry(signals : &Vec<Word>, outputs : &Vec<Word>) -> i32 {
      }).fold(0, |acc,d| acc * 10 + d)
 }
 
-fn part2(input : &Vec<Entry>) -> i32 {
+fn part2(input : &[Entry]) -> i32 {
     let mut sum = 0;
     for (signals,outputs) in input {
         let r = solve_entry(signals, outputs);

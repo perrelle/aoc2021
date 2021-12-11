@@ -24,7 +24,7 @@ mod parser  {
 }
 
 
-fn check_bingo(grid: &[[u32 ; 5] ; 5], drawn_numbers : &Vec<bool>) -> bool {
+fn check_bingo(grid: &Grid, drawn_numbers : &[bool]) -> bool {
     (0..5).any(|i| {
         (0..5).all(|j| {
             drawn_numbers[grid[i][j] as usize]
@@ -35,7 +35,7 @@ fn check_bingo(grid: &[[u32 ; 5] ; 5], drawn_numbers : &Vec<bool>) -> bool {
     })
 }
 
-fn score(grid: &[[u32 ; 5] ; 5], drawn_numbers : &Vec<bool>, final_number: u32) -> i32 {
+fn score(grid: &Grid, drawn_numbers : &[bool], final_number: u32) -> i32 {
     let sum =
         (0..5).fold(0, |sum, i| {
             (0..5).fold(sum, |sum, j| {
@@ -49,22 +49,22 @@ fn score(grid: &[[u32 ; 5] ; 5], drawn_numbers : &Vec<bool>, final_number: u32) 
     (sum * final_number) as i32
 }
 
-fn part1(numbers : &Vec<u32>, grids: &Vec<[[u32 ; 5] ; 5]>) -> i32 {
+fn part1(numbers : &[u32], grids: &[Grid]) -> i32 {
     let mut drawn_numbers : Vec<bool> = Vec::new();
     drawn_numbers.resize(numbers.len(), false);
 
     for &n in numbers {
         drawn_numbers[n as usize] = true;
         for grid in grids {
-            if check_bingo(&grid, &drawn_numbers) {
-                return score(&grid, &drawn_numbers, n);
+            if check_bingo(grid, &drawn_numbers) {
+                return score(grid, &drawn_numbers, n);
             }
         }
     }
     -1
 }
 
-fn part2(numbers : &Vec<u32>, grids: &Vec<[[u32 ; 5] ; 5]>) -> i32 {
+fn part2(numbers : &[u32], grids: &[Grid]) -> i32 {
     let mut drawn_numbers : Vec<bool> = Vec::new();
     drawn_numbers.resize(numbers.len(), false);
     let mut remaining_grids : Vec<&[[u32 ; 5] ; 5]> = grids.iter().collect();
@@ -73,13 +73,13 @@ fn part2(numbers : &Vec<u32>, grids: &Vec<[[u32 ; 5] ; 5]>) -> i32 {
         drawn_numbers[n as usize] = true;
         match remaining_grids.as_slice() {
             [grid] => {
-                if check_bingo(&grid, &drawn_numbers) {
-                    return score(&grid, &drawn_numbers, n);
+                if check_bingo(grid, &drawn_numbers) {
+                    return score(grid, &drawn_numbers, n);
                 }
             },
             _ => {
                 remaining_grids = remaining_grids.into_iter().filter(|grid|
-                    !check_bingo(&grid, &drawn_numbers)).collect();
+                    !check_bingo(grid, &drawn_numbers)).collect();
             }
         }
     }
