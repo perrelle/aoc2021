@@ -1,24 +1,21 @@
+use std::collections::HashSet;
+use std::collections::HashMap;
+
+pub type Word = HashSet<char>;
+pub type Entry = (Vec<Word>,Vec<Word>);
+
 mod parser  {
-    use std::collections::HashSet;
     use nom::{
-        multi::separated_list1,
-        sequence::tuple,
-        IResult,
-        bytes::complete::tag,
-        character::complete::{alpha1, multispace0, multispace1, space1},
-        combinator::all_consuming,
-    };
+        IResult, multi::*, character::complete::*, bytes::complete::*,
+        sequence::*, combinator::*};
 
-    pub type Word = HashSet<char>;
-    pub type Entry = (Vec<Word>,Vec<Word>);
-
-    fn word(input: &[u8]) -> IResult<&[u8], Word> {
+    fn word(input: &[u8]) -> IResult<&[u8], super::Word> {
         let (input, v) = alpha1(input)?;
-        let word = HashSet::from_iter(v.iter().map(|&c| c as char));
+        let word = super::Word::from_iter(v.iter().map(|&c| c as char));
         Ok((input, word))
     }
 
-    fn entry(input: &[u8]) -> IResult<&[u8], Entry> {
+    fn entry(input: &[u8]) -> IResult<&[u8], super::Entry> {
         let (input, (v1,_,v2)) = tuple((
             separated_list1(space1, word),
             tag(" | "),
@@ -26,18 +23,14 @@ mod parser  {
         Ok((input, (v1,v2)))
     }
 
-    pub fn parse(input: &[u8]) -> IResult<&[u8], Vec<Entry>> {
+    pub fn parse(input: &[u8]) -> IResult<&[u8], Vec<super::Entry>> {
         let (input, l) = separated_list1(multispace1, entry)(input)?;
         let (input, _) = all_consuming(multispace0)(input)?;
         Ok((input, l))
     }
 }
 
-use std::collections::HashSet;
-use std::collections::HashMap;
-
-
-fn part1(input : &Vec<parser::Entry>) {
+fn part1(input : &Vec<Entry>) -> i32 {
     // Part 1
     let mut count = 0;
     for (_signals,outputs) in input {
@@ -49,6 +42,7 @@ fn part1(input : &Vec<parser::Entry>) {
     }
 
     println!("Outputs that use a unique number of segments: {}", count);
+    count
 }
 
 struct VariableMap<K,V> {
@@ -101,12 +95,12 @@ impl<K> Singleton<K> for HashSet<K> where
     }
 }
 
-fn solve_entry(signals : &Vec<parser::Word>, outputs : &Vec<parser::Word>) -> i32 {
-    let mut digits : VariableMap<i32, &parser::Word> = VariableMap::new("digit");
+fn solve_entry(signals : &Vec<Word>, outputs : &Vec<Word>) -> i32 {
+    let mut digits : VariableMap<i32, &Word> = VariableMap::new("digit");
     let mut segments : VariableMap<char, char> = VariableMap::new("segment");
 
-    let mut five_seg_words : Vec<&parser::Word> = Vec::new();
-    let mut six_seg_words : Vec<&parser::Word> = Vec::new();
+    let mut five_seg_words : Vec<&Word> = Vec::new();
+    let mut six_seg_words : Vec<&Word> = Vec::new();
     
     // - Step 1 -
     // Identify easy digits, digits which are the only one to use a number
@@ -189,7 +183,7 @@ fn solve_entry(signals : &Vec<parser::Word>, outputs : &Vec<parser::Word>) -> i3
      }).fold(0, |acc,d| acc * 10 + d)
 }
 
-fn part2(input : &Vec<parser::Entry>) {
+fn part2(input : &Vec<Entry>) -> i32 {
     let mut sum = 0;
     for (signals,outputs) in input {
         let r = solve_entry(signals, outputs);
@@ -197,24 +191,22 @@ fn part2(input : &Vec<parser::Entry>) {
         sum += r;
     }
     println!("Addition of values: {}", sum);
+    sum
 }
 
-fn solve(data: &[u8]) {
+pub fn solve(data: &[u8]) -> (i32,i32) {
     let (_,input) = parser::parse(data).unwrap();
-    part1(&input);
-    part2(&input);
-}
-
-fn main() {
-
+    (part1(&input), part2(&input))
 }
 
 #[test]
-fn test0() {
-    solve(include_bytes!("../../inputs/day8.0"));
+fn test8_0() {
+    let solution = solve(include_bytes!("../inputs/day8.0"));
+    assert_eq!(solution, (26,61229));
 }
 
 #[test]
-fn test1() {
-    solve(include_bytes!("../../inputs/day8.1"));
+fn test8_1() {
+    let solution = solve(include_bytes!("../inputs/day8.1"));
+    assert_eq!(solution, (362,1020159));
 }

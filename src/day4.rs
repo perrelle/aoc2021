@@ -1,50 +1,28 @@
-use std::io::{self, prelude::*};
+pub type Grid = [[u32 ; 5] ; 5];
 
-fn read_line<B>(buf : &mut String, mut f : impl FnMut(&[&str]) -> B) -> B {
-    buf.clear();
-    io::stdin().read_line(buf).expect("cannot read line");
-    let words : Vec<&str> = buf.trim().split_whitespace().collect();
-    f(words.as_slice())
+mod parser  {
+    use nom::{
+        IResult, multi::*, character::complete::*, bytes::complete::*,
+        sequence::*, combinator::*};
+
+    pub fn line(input: &[u8]) -> IResult<&[u8], [u32 ; 5]> {
+        let (input,line) = terminated(separated_list1(space1, u32), multispace0)(input)?;
+        Ok((input, line.try_into().unwrap()))
+    }
+
+    pub fn grid(input: &[u8]) -> IResult<&[u8], super::Grid> {
+        let (input,grid) = count(line, 5)(input)?;
+        Ok((input, grid.try_into().unwrap()))
+    }
+
+    pub fn parse(input: &[u8]) -> IResult<&[u8], (Vec<u32>,Vec<super::Grid>)> {
+        let (input,numbers) = terminated(separated_list1(tag(","), u32), multispace1)(input)?;
+        let (input, grids) = many1(grid)(input)?;
+        let (input, _) = all_consuming(multispace0)(input)?;
+        Ok((input, (numbers,grids)))
+    }
 }
 
-fn input() -> (Vec<u32>,Vec<[[u32 ; 5] ; 5]>) {
-    let mut buf = String::new();
-    
-    let numbers : Vec<u32> = read_line(&mut buf, |s|
-        match s {
-            [w] => w.split(',').map(|n|
-                    n.parse::<u32>().expect("failed to parse input")
-                ).collect(),
-            _ => panic!("invalid input")
-        });
-
-    let stdin = io::stdin();
-    let lines = stdin.lock().lines();
-    let mut grids = Vec::new();
-    let mut current_grid = [[0 ; 5] ; 5];
-    let mut i = 0;
-
-    lines.for_each(|s| {
-        let str = s.unwrap();
-        let words: Vec<&str> = str.split_whitespace().collect();
-        match words.as_slice() {
-            [] => (),
-            w => {
-                for j in 0..5 {
-                    let x = w[j].parse::<u32>().expect("failed to parse input");
-                    current_grid[i][j] = x;
-                }
-                i += 1;
-                if i >= 5 {
-                    grids.push(current_grid);
-                    i = 0;
-                }
-            }
-        }
-    });
-
-    (numbers, grids)
-}
 
 fn check_bingo(grid: &[[u32 ; 5] ; 5], drawn_numbers : &Vec<bool>) -> bool {
     (0..5).any(|i| {
@@ -108,8 +86,23 @@ fn part2(numbers : &Vec<u32>, grids: &Vec<[[u32 ; 5] ; 5]>) -> i32 {
     -1
 }
 
-fn main() { 
-    let (numbers, grids) = input();
-    println!("Part 1 - final score is {}", part1(&numbers, &grids));
-    println!("Part 2 - final score is {}", part2(&numbers, &grids));
+pub fn solve(data: &[u8]) -> (i32,i32) {
+    let (_,(numbers, grids)) = parser::parse(data).unwrap();
+    let score1 = part1(&numbers, &grids);
+    println!("Part 1 - final score is {}", score1);
+    let score2 = part2(&numbers, &grids);
+    println!("Part 2 - final score is {}", score2);
+    (score1,score2)
+}
+
+#[test]
+fn test4_0() {
+    let solution = solve(include_bytes!("../inputs/day4.0"));
+    assert_eq!(solution, (4512,1924));
+}
+
+#[test]
+fn test4_1() {
+    let solution = solve(include_bytes!("../inputs/day4.1"));
+    assert_eq!(solution, (58838,6256));
 }
