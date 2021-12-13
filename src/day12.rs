@@ -24,16 +24,16 @@ mod parser  {
     }
 }
 
-fn add_edge(graph: &mut Graph, src: &String, dst: &String) {
+fn add_edge(graph: &mut Graph, src: &str, dst: &str) {
     let v = match graph.get_mut(src) {
         Some(v) => v,
         None => {
             let v = Vec::new();
-            graph.insert(src.clone(), v);
+            graph.insert(src.to_string(), v);
             graph.get_mut(src).unwrap()
         }
     };
-    v.push(dst.clone());
+    v.push(dst.to_string());
 }
 
 fn build_graph(edges : Vec<Edge>) -> Graph {
@@ -45,51 +45,50 @@ fn build_graph(edges : Vec<Edge>) -> Graph {
     graph
 }
 
-fn is_small_cave(v : &String) -> bool {
-    let first_char : char = v.chars().nth(0).unwrap();
+fn is_small_cave(v : &str) -> bool {
+    let first_char : char = v.chars().next().unwrap();
     first_char.is_lowercase()
 }
 
-fn get_mark(marks : &Marks, v : &String) -> u32 {
+fn get_mark(marks : &Marks, v : &str) -> u32 {
     match marks.get(v) {
         Some(&i) => i,
         _ => 0
     }
 }
 
-fn is_marked(marks : &Marks, v : &String) -> bool {
-    get_mark(&marks, &v) > 0
+fn is_marked(marks : &Marks, v : &str) -> bool {
+    get_mark(marks, v) > 0
 }
 
-fn mark(marks : &mut Marks, v : &String) {
+fn mark(marks : &mut Marks, v : &str) {
     if is_small_cave(v) {
         match marks.get_mut(v) {
             Some(i) => *i += 1,
             _ => {
-                marks.insert(v.clone(), 1);
+                marks.insert(v.to_string(), 1);
             }
         }
     }
 }
 
-fn unmark(marks : &mut Marks, v : &String) {
+fn unmark(marks : &mut Marks, v : &str) {
     if is_small_cave(v) {
-        match marks.get_mut(v) {
-            Some(i) => *i -= 1,
-            _ => ()
+        if let Some(i) = marks.get_mut(v) {
+            *i -= 1
         }
     }
 }
 
 
-fn dfs(graph : &Graph, marks : &mut Marks, v : &String, extra: bool, prefix: &mut Vec<String>) -> u32 {
+fn dfs(graph : &Graph, marks : &mut Marks, v : &str, extra: bool, prefix: &mut Vec<String>) -> u32 {
     let marked = is_marked(marks, v);
 
     if marked && !extra {
         0
     }
     else {
-        prefix.push(v.clone());
+        prefix.push(v.to_string());
 
         let r =
             if v == "end" {

@@ -39,9 +39,7 @@ mod parser  {
 
     pub fn parse(input: &[u8]) -> IResult<&[u8], Input> {
         let (input, points) = many1(point)(input)?;
-        println!("{:?}", points);
         let (input, folds) = separated_list1(multispace1, fold)(input)?;
-        println!("{:?}", folds);
         let (input, _) = all_consuming(multispace0)(input)?;
         Ok((input, (points, folds)))
     }
@@ -73,6 +71,7 @@ fn draw_grid(points: &[Point]) -> Grid {
     grid
 }
 
+#[allow(clippy::comparison_chain)]
 fn fold(grid: &Grid, &(axis,pos) : &Fold) -> Grid {
     let height = grid.num_rows();
     let width = grid.num_columns();
