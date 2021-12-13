@@ -7,7 +7,7 @@ pub type Marks = HashMap<String,u32>;
 mod parser  {
     use nom::{
         IResult, multi::*, character::complete::*, bytes::complete::*,
-        sequence::*};
+        sequence::*, combinator::*};
 
     fn line(input: &[u8]) -> IResult<&[u8], super::Edge> {
         let (input, (src,_,dst,_)) =
@@ -19,6 +19,7 @@ mod parser  {
 
     pub fn parse(input: &[u8]) -> IResult<&[u8], Vec<super::Edge>> {
         let (input, l) = many1(line)(input)?;
+        let (input, _) = all_consuming(multispace0)(input)?;
         Ok((input, l))
     }
 }
