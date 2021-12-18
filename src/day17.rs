@@ -11,14 +11,11 @@ pub fn simulate(target: &Rect, vx0 : i32, vy0: i32) -> Option<i32> {
     let mut vx = vx0;
     let mut vy = vy0;
     let mut maxy = 0;
-    //println!("--- start with velocity {},{}", vx0, vy0);
 
     while x <= target.x2 && y >= target.y1 {
-        //println!("{},{} with speed {},{}", x, y, vx, vy);
         maxy = std::cmp::max(maxy, y);
 
         if inside(target, x, y) {
-            //println!("solution with initial speed {},{} hits target at {},{}", vx0, vy0, x, y);
             return Some(maxy);
         }
 
