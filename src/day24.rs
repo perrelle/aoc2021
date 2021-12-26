@@ -482,16 +482,33 @@ impl AbstractState {
     }
 }
 
-fn forward_interpret(program: &[Instruction], initial: &State) -> AbstractState {
+fn forward_interpret(program: &[(usize,Instruction)], initial: &State) -> AbstractState {
     let mut state = AbstractState::singleton(initial);
-    for instruction in program {
+    for (_,instruction) in program {
         state.forward(instruction);
     }    
     state
 }
 
-fn branched_execution(program: &[Instruction], mut state: State, ascending: bool) -> Option<Vec<i64>> {
-    for (i,instruction) in program.iter().enumerate() {
+#[derive(Debug,PartialEq,Eq,Hash)]
+struct CachedState {
+    state: State,
+    instruction: usize
+}
+
+fn branched_execution(
+        cache: &mut HashSet<CachedState>,
+        program: &[(usize,Instruction)],
+        mut state: State,
+        ascending: bool) -> Option<Vec<i64>>
+{
+    for (i,(n,instruction)) in program.iter().enumerate() {
+        let cs = CachedState {state: state.clone(), instruction: *n};
+        if cache.get(&cs).is_some() {
+            return None;
+        }
+        cache.insert(cs);
+
         if let Instruction::Inp(_) = instruction {
             let range: Vec<i64> =
                 if ascending {
@@ -509,7 +526,7 @@ fn branched_execution(program: &[Instruction], mut state: State, ascending: bool
                     return Some(vec![x]);
                 } 
                 else if interval.contains(0) {
-                    if let Some(mut v) = branched_execution(&program[(i+1)..], state, ascending) {
+                    if let Some(mut v) = branched_execution(cache, &program[(i+1)..], state, ascending) {
                         v.push(x);
                         return Some(v);
                     }
@@ -543,16 +560,19 @@ pub fn execute(program: &[Instruction], input: &[i64]) {
     println!("Final state: {}", state);
 }
 
-fn solve_part(program: &[Instruction], part2: bool) -> i64 {
-    let result = branched_execution(program, State::initial(), part2).unwrap();
+fn solve_part(program: &[(usize,Instruction)], part2: bool) -> i64 {
+    let mut cache = HashSet::new();
+    let result = branched_execution(&mut cache, program, State::initial(), part2).unwrap();
     result.iter().rev().fold(0, |acc, d| acc * 10 + d)
 }
 
 pub fn solve(input: &[u8]) -> (i64,i64) {
     let (_,program) = parser::parse(input).unwrap();
-    let solution1 = solve_part(&program, false);
+    let numbered_program : Vec<(usize,Instruction)> =
+        program.into_iter().enumerate().collect();
+    let solution1 = solve_part(&numbered_program, false);
     println!("largest serial number: {}", solution1);
-    let solution2 = solve_part(&program, true);
+    let solution2 = solve_part(&numbered_program, true);
     println!("smallest serial number: {}", solution2);
     (solution1, solution2)
 }
